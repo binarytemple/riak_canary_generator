@@ -7,11 +7,12 @@ This is useful for testing full-sync and real-time Riak MDC replication.
 
 The rationale is detailed [here](http://docs.basho.com/riakee/latest/cookbooks/Multi-Data-Center-Replication-Monitoring/)
  
-The intention is to generate one object per Riak logical partition given any valid ring size e.g 8,16,32,64,2048.
-Write the object to the source cluster.
-Periodically poll the sink cluster, giving this covering set of objects.
-Read the object from the sink cluster, thus verifying that replication is working correctly for the given VNodes.
-
+The intention is to:
+* Generate one object per Riak logical partition given any valid ring size e.g 8,16,32,64,2048.
+* Write the object to the source cluster.
+* Periodically poll the sink cluster, giving this covering set of objects.
+* Read the object from the sink cluster, thus verifying that replication is working correctly for the given VNodes.
+* 
 
 --
 
