@@ -9,23 +9,10 @@
 -module(riak_canary_generator).
 -author("bryanhunt").
 
+-define(DEBUG, true).
+
 %% API
--export([calc/1, randomGen/0, gen_partitions/1, left/2, right/2, gen_zipped_partitions/1, solve/2, sha/1, gen_uuid/0, recurso/3]).
-
--spec randomGen() -> string().
-randomGen() ->
-  integer_to_list(round(random:uniform() * 10000000000000000000000000000000))
-.
-
--spec calc(integer()) -> list().
-calc(RingSize) ->
-  calc(RingSize, fun riak_canary_generator:randomGen/0)
-.
-
--spec calc(integer(), fun()) -> list().
-calc(_, RGFunc) ->
-  RGFunc()
-.
+-export([gen_partitions/1, left/2, right/2, gen_zipped_partitions/1, solve/2, sha/1, gen_uuid/0]).
 
 -spec gen_partitions(integer()) -> list(integer()).
 gen_partitions(RingSize) when is_integer(RingSize) ->
@@ -51,18 +38,15 @@ gen_zipped_partitions(RingSize) when is_integer(RingSize) ->
 -type identifier() :: {{bucketType(), bucket()}, key()}.
 -type result() :: [{identifier(), {integer(), integer()}}].
 
-% -
-
 -spec solve(integer(), identifier()) -> result().
 solve(RingSize, Identifier) ->
   {{_Type, _Bucket}, _KeyPrefix} = Identifier,
   _ = RingSize,
   Parts = gen_zipped_partitions(RingSize),
   io:format("~n----~npartitions~n~p ~n----~n ", [Parts]),
-  riak_canary_generator:recurso(Identifier, riak_canary_generator:gen_zipped_partitions(RingSize), []).
+  solve(Identifier, gen_zipped_partitions(RingSize), []).
 
-
-recurso(Id, [PHead | PTail], Acc) ->
+solve(Id, [PHead | PTail], Acc) ->
   {_Index, Range} = PHead,
   {{Type, Bucket}, KeyPrefix} = Id,
   GeneratedKey =
@@ -71,20 +55,26 @@ recurso(Id, [PHead | PTail], Acc) ->
   %io:format("trying : ~p:~p - range:~p ~n ", [GeneratedKey, Sha, Range]),
   case Range of
     {Start, End} when End > 0, Sha >= Start, Sha =< End ->
-      %io:format("Found: ~p~p", [Sha, GeneratedKey]),
-      recurso(Id, PTail, Acc ++ [{{GeneratedKey, Sha}, PHead}])
+%%-ifdef(debug)
+%%io:format("~nFound: ~p~p", [Sha, GeneratedKey]),
+%%-endif,
+      solve(Id, PTail, Acc ++ [{{GeneratedKey, Sha}, PHead}])
     ;
     {Start, End} when End == 0, Sha >= Start ->
-      %io:format("Found: ~p~p", [Sha, GeneratedKey]),
-      recurso(Id, PTail, Acc ++ [{{GeneratedKey, Sha}, PHead}])
+%%-ifdef(debug),
+%%io:format("~nFound: ~p~p", [Sha, GeneratedKey]),
+%%-endif,
+      solve(Id, PTail, Acc ++ [{{GeneratedKey, Sha}, PHead}])
     ;
     _ ->
-      recurso(Id, [PHead | PTail], Acc)
+%%-ifdef(debug),
+%%io:format("~nDidn't find ~p~p", [Sha, GeneratedKey]),
+%%-endif,
+      solve(Id, [PHead | PTail], Acc)
   end
 ;
 
-
-recurso({{_, _}, _}, [], Acc) ->
+solve(_, [], Acc) ->
   Acc.
 
 
