@@ -1,6 +1,6 @@
 %%%-------------------------------------------------------------------
-%%% @author bryanhunt
-%%% @copyright (C) 2015, <COMPANY>
+%%% @author  binarytemple
+%%% @copyright apache licensed
 %%% @doc
 %%%
 %%% @end
@@ -9,10 +9,10 @@
 -module(riak_canary_generator).
 -author("bryanhunt").
 
--define(DEBUG, true).
+-define(DEBUG, false).
 
 %% API
--export([gen_partitions/1, left/2, right/2, gen_zipped_partitions/1, solve/2, sha/1, gen_uuid/0]).
+-export([gen_partitions/1, gen_zipped_partitions/1, solve/2, sha/1, gen_uuid/0]).
 
 -spec gen_partitions(integer()) -> list(integer()).
 gen_partitions(RingSize) when is_integer(RingSize) ->
@@ -27,11 +27,6 @@ gen_zipped_partitions(RingSize) when is_integer(RingSize) ->
     ), lists:zip(Parts, riak_canary_generator:left(Parts, 1))).
 
 
-% -
-% @edoc ring size -> [ring size {type,bucker,keyPrefix} -> [identifier, partition id,partition startindex]
-% each of the identifiers will be unique
-%
-
 -type bucketType() :: binary().
 -type bucket() :: binary().
 -type key() :: binary().
@@ -45,6 +40,7 @@ solve(RingSize, Identifier) ->
   Parts = gen_zipped_partitions(RingSize),
   io:format("~n----~npartitions~n~p ~n----~n ", [Parts]),
   solve(Identifier, gen_zipped_partitions(RingSize), []).
+
 
 solve(Id, [PHead | PTail], Acc) ->
   {_Index, Range} = PHead,
@@ -77,10 +73,6 @@ solve(Id, [PHead | PTail], Acc) ->
 solve(_, [], Acc) ->
   Acc.
 
-
-
-
-
 -spec gen_uuid() -> binary().
 gen_uuid() ->
   list_to_binary(uuid:to_string(uuid:uuid1())).
@@ -89,20 +81,9 @@ gen_uuid() ->
 sha(Identifier) ->
   crypto:bytes_to_integer(crypto:hash(sha, term_to_binary(Identifier))).
 
-
 %%
-%%-spec solve(integer(),{binary(), binary(),binary()}, Input, Acc )  -> result().
-%%solve(RingSize,Prefix,Acc,[]) ->
-%%  [].
-%%%%x( Candidates, Prefix,  )
+%% Utility functions
 %%
-%%%%locate_partition( ) ->
-%%%%  1.
-
-
-%% - probably not required - util functions for shift/rotate elements of a list
-%% - was going to use with lists:zip/2 but simpler to just increment and stop when we find
-%% that our candidate is larger than the previous but smaller than the next element.
 
 left(List, Times) ->
   left(List, Times, []).
@@ -126,10 +107,10 @@ reverse([H | T], Acc) ->
   reverse(T, [H | Acc]).
 
 
-% - Tests time !
+% - TODO - tests
 %
 %
 %
 
 % This should produce the list of id's and partitions...
-% riak_canary_generator:recurso({{<<"foo">>,<<"bar">>},<<"baz">>},riak_canary_generator:gen_zipped_partitions(4), []  ).
+% riak_canary_generator:solve({{<<"foo">>,<<"bar">>},<<"baz">>},riak_canary_generator:gen_zipped_partitions(4), []  ).
