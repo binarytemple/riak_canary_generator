@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+CMD_ARGS="$(dirname $0)/generate.erlang.path.sh"
+erl $( $CMD_ARGS )

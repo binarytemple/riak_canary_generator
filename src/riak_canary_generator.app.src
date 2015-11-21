@@ -1,0 +1,23 @@
+%%-*- mode: erlang -*-
+
+{application, riak_canary_generator,
+  [
+    {description, "riak_canary_generator"},
+    {vsn,git},
+{modules, []},
+{registered, []},
+{applications, [kernel,
+stdlib,
+crypto,
+%%       mochiweb,
+%%      goldrush,
+lager,
+meck,
+sync
+%%       protobuffs,
+%%       riak_pb,
+%%       riakc
+]},
+{mod, {riak_canary_generator, []}},
+{env, []}
+]}.

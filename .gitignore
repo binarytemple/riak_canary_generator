@@ -12,3 +12,9 @@ rel/example_project
 .rebar
 
 # Created by .ignore support plugin (hsz.mobi)
+
+_build/
+generator/
+rebar.lock
+rebar3
+*.iml
