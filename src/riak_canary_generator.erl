@@ -24,7 +24,7 @@ gen_zipped_partitions(RingSize) when is_integer(RingSize) ->
   lists:zip(
     lists:map(fun(X) -> X end,
       lists:seq(1, RingSize)
-    ), lists:zip(Parts, riak_canary_generator:left(Parts, 1))).
+    ), lists:zip(Parts, left(Parts, 1))).
 
 
 -type bucketType() :: binary().
@@ -96,7 +96,7 @@ left([H | T], Times, Acc) ->
   left(T, Times - 1, [H | Acc]).
 
 right(List, Times) ->
-  reverse(riak_canary_generator:left(reverse(List), Times)).
+  reverse(left(reverse(List), Times)).
 
 reverse(List) ->
   reverse(List, []).
