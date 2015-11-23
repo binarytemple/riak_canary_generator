@@ -28,6 +28,7 @@ Warnings/Limitations:
 
 Implementation 
 
+```txt
 Iterate over a set of partition ranges
     for each partition range
         recurse while generating a uuid and append to the provided identifier in order to generate unique keys
@@ -35,6 +36,7 @@ Iterate over a set of partition ranges
         if yes, then store the partition and key in the accumulator and move on to the next partition
         if no, then generate another key and see if it satisfies the constraint for the current partition
 continue in this manner until an identifier is generated for each partition.
+```
 
 --- 
 
