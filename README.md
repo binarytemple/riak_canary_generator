@@ -16,4 +16,6 @@ Our intention is to:
 
 --
 
-The implementation of this code will be to generate a load of unique object identifiers (type/bucket/key)/(bucket/key) chash them in turn until we extract a set of object identifiers where we have one object identifier per partition.
+Warning - brute force..
+
+The implementation of this code will be to generate a load of unique object identifiers (type/bucket/key)/(bucket/key) then chash them in turn until we extract a set of object identifiers where we have one object identifier per partition.
