@@ -16,25 +16,31 @@ Our intention is to:
 
 ---
 
-Warnings:
+Warnings/Limitations:
 
 * Ineficient key generation;
 * Brute force search (gets very slow with larger ring sizes);
 * Depends on Erlang R16B03.
-* Identifiers are valid for Riak 2 only, haven't implemented the earlier term {bucket/key}.
+* Identifiers are valid for Riak 2 only, I haven't implemented the legacy term {bucket/key}.
+* It isn't properly tail-recursive, may occasionally blow-up.
 
 ---
 
 Implementation 
 
-Iterates over a set of partition ranges, for each partition range, attempts to generate a set of keys which confirm to the constraint that we generate a single identifier (type/bucket/key) which hashes into the range, we store the identifier and move to the next range. Intermediate generated keys are discarded as we move to the next partition. 
-
+Iterate over a set of partition ranges
+    for each partition range
+        recurse while generating a uuid and append to the provided identifier in order to generate unique keys
+        check the constraint that the key must hash to a value which is within the range of the current partition
+        if yes, then store the partition and key in the accumulator and move on to the next partition
+        if no, then generate another key and see if it satisfies the constraint for the current partition
+continue in this manner until an identifier is generated for each partition.
 
 --- 
 
-Building:
+---
 
--- 
+Building:
 
 ```
 [/common/riak_canary_generator%]./rebar clean get-deps compile
@@ -46,6 +52,8 @@ flag during linking and do at least one of the following:
 ..... .... etc
 Compiled ./src/riak_canary_generator.erl
 ```
+
+--- 
 
 Example use:
 
